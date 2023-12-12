@@ -21,5 +21,23 @@ def u_n(n: int) -> list:
     res = []
     if n == 0:
         return [1]
-    _2_n = [2*i+1 for i in u_n(n-1)]
-    _3_n = [3*i+1 for i in u_n(n-1)]
+    _2_n = [2 * i + 1 for i in u_n(n - 1)]
+    _3_n = [3 * i + 1 for i in u_n(n - 1)]
+    res.extend(sorted(list(set(_2_n) | set(_3_n))))
+
+    return res
+
+
+def dbl_linear(n):
+    seq = [1]
+    iter_ = 0
+
+    while len(seq) <= n + 1:
+        iter_ += 1
+        seq.extend(u_n(iter_))
+
+    return seq[n]
+
+print(dbl_linear(2))
+print(dbl_linear(3))
+print(dbl_linear(10))
