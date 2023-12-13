@@ -41,19 +41,53 @@
 #
 # Special thanks to the colleague that, seeing my code and commenting that I worked on that
 # as if it was I was on CodeWars, made me realize that it could be indeed a good idea for a kata :)
+import re
 
-def remove_skips(part: str) -> str:
+def process_part(part: str) -> str:
     skip_list = ["the", "of", "in", "from", "by", "with", "and", "or", "for", "to", "at", "a"]
-    return ""
+    if len(part) <= 30:
+        part = part.replace("-", " ").upper()
+    else:
+        part = "".join(token[0].upper() for token in part.split("-") if token not in skip_list)
+    return part
+
 
 def generate_bc(url: str, separator: str) -> str:
-    bc_menu =['<a href="/">HOME</a>']
-    hrefs = '<a href="%PATH%">%NAME%</a>'
-    spans = '<span class="active">%NAME%</span>'
-    parts = url.split('/')[1:][::-1]
-    if parts[0].startswith("index."):
-        parts.pop(0)
-    return ""
+    url = re.sub(r'^https?://', "", url, re.I)
 
+    bc_menu = ['<a href="/">HOME</a>']
+
+    hrefs = '<a href="%PATH%">%NAME%</a>'
+    span = '<span class="active">%NAME%</span>'
+    rel_path = "/"
+
+    parts = url.split('/')[1:]
+    if not parts or not parts[0]:
+        return '<span class="active">HOME</span>'
+
+    if parts[-1].startswith("index."):
+        parts.pop(-1)
+    if not parts:
+        return '<span class="active">HOME</span>'
+
+    for part in parts[:-1]:
+        name = process_part(part)
+        rel_path += part + "/"
+        bc_menu.append(hrefs.replace("%PATH%", rel_path)
+                       .replace("%NAME%", name))
+    part = re.match(r'^[a-zA-Z \-]+', parts[-1])
+    if part:
+        name = process_part(part.group())
+        bc_menu.append(span.replace("%NAME%", name))
+
+    return separator.join(bc_menu)
+
+print(generate_bc('https://www.codewars.com#offers', "*"))
+assert generate_bc('www.agcpartners.co.uk/', "*") == '<span class="active">HOME</span>'
 assert generate_bc("mysite.com/very-long-url-to-make-a-silly-yet-meaningful-example/example.htm", " > ") == '<a href="/">HOME</a> > <a href="/very-long-url-to-make-a-silly-yet-meaningful-example/">VLUMSYME</a> > <span class="active">EXAMPLE</span>'
 assert generate_bc("www.very-long-site_name-to-make-a-silly-yet-meaningful-example.com/users/giacomo-sorbi", " + ") == '<a href="/">HOME</a> + <a href="/users/">USERS</a> + <span class="active">GIACOMO SORBI</span>'
+assert generate_bc("www.codewars.com/users/GiacomoSorbi?ref=CodeWars", " / ") == '<a href="/">HOME</a> / <a href="/users/">USERS</a> / <span class="active">GIACOMOSORBI</span>'
+assert generate_bc("https://twitter.de/most-viewed/most-viewed/profiles/giacomo-sorbi.html?favourite=code", " * ") == '<a href="/">HOME</a> * <a href="/most-viewed/">MOST VIEWED</a> * <a href="/most-viewed/most-viewed/">MOST VIEWED</a> * <a href="/most-viewed/most-viewed/profiles/">PROFILES</a> * <span class="active">GIACOMO SORBI</span>'
+assert generate_bc("https://codewars.com/profiles/pictures-you-wished-you-never-saw-but-you-cannot-unsee-now/pippi-or-uber-bed-immunity-surfer-with-meningitis/by-diplomatic-pippi-and-transmutation-to-from-to/index.php", " - ") == '<a href="/">HOME</a> - <a href="/profiles/">PROFILES</a> - <a href="/profiles/pictures-you-wished-you-never-saw-but-you-cannot-unsee-now/">PYWYNSBYCUN</a> - <a href="/profiles/pictures-you-wished-you-never-saw-but-you-cannot-unsee-now/pippi-or-uber-bed-immunity-surfer-with-meningitis/">PUBISM</a> - <span class="active">DPT</span>'
+assert generate_bc("http://www.facebook.fr/eurasian-from-paper-immunity-transmutation/pictures-you-wished-you-never-saw-but-you-cannot-unsee-now/transmutation-immunity-uber-surfer/the-skin-research-at-or-kamehameha-bladder-with-research#team", " : ") == '<a href="/">HOME</a> : <a href="/eurasian-from-paper-immunity-transmutation/">EPIT</a> : <a href="/eurasian-from-paper-immunity-transmutation/pictures-you-wished-you-never-saw-but-you-cannot-unsee-now/">PYWYNSBYCUN</a> : <a href="/eurasian-from-paper-immunity-transmutation/pictures-you-wished-you-never-saw-but-you-cannot-unsee-now/transmutation-immunity-uber-surfer/">TIUS</a> : <span class="active">SRKBR</span>'
+
