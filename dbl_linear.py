@@ -17,27 +17,29 @@
 # Note:
 # Focus attention on efficiency
 
-def u_n(n: int) -> list:
-    res = []
-    if n == 0:
-        return [1]
-    _2_n = [2 * i + 1 for i in u_n(n - 1)]
-    _3_n = [3 * i + 1 for i in u_n(n - 1)]
-    res.extend(sorted(list(set(_2_n) | set(_3_n))))
-
-    return res
+from collections import deque
 
 
-def dbl_linear(n):
-    seq = [1]
-    iter_ = 0
+def dbl_linear_deque(n):
+    u, q2, q3 = 1, deque([]), deque([])
+    for _ in range(n):
+        q2.append(2 * u + 1)
+        q3.append(3 * u + 1)
+        u = min(q2[0], q3[0])
+        if u == q2[0]: q2.popleft()
+        if u == q3[0]: q3.popleft()
+    return u
 
-    while len(seq) <= n + 1:
-        iter_ += 1
-        seq.extend(u_n(iter_))
-
-    return seq[n]
-
-print(dbl_linear(2))
-print(dbl_linear(3))
-print(dbl_linear(10))
+def dbl_linear_best_imho(n):
+    u = [1]
+    i = 0
+    j = 0
+    while len(u) <= n:
+        x = 2 * u[i] + 1
+        y = 3 * u[j] + 1
+        if x <= y:
+            i += 1
+        if x >= y:
+            j += 1
+        u.append(min(x,y))
+    return u[n]
