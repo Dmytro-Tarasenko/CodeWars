@@ -31,38 +31,7 @@ battle_field = [[1, 0, 0, 0, 0, 1, 1, 0, 0, 0],
                [0, 0, 0, 0, 0, 0, 0, 1, 0, 0],
                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]
 
-random_1 = [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 1, 0, 0, 1, 1],
-            [1, 0, 1, 1, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 1, 1, 1, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 1, 1, 0, 0, 0, 1, 1, 1, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [1, 1, 1, 1, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [1, 0, 0, 0, 0, 0, 1, 0, 0, 0]]
-
-random_2 = [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 1, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 1, 0, 0, 0, 1, 0, 0, 1],
-            [0, 0, 1, 0, 0, 0, 1, 0, 0, 1],
-            [1, 0, 1, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 1, 1, 1, 0],
-            [1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 1, 0, 0, 0, 0, 0, 0],
-            [0, 1, 0, 1, 0, 0, 0, 0, 0, 0],
-            [0, 1, 0, 1, 0, 1, 0, 1, 0, 0]]
-
-random_3 = [[0, 0, 0, 0, 0, 0, 0, 0, 1, 1],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 1, 1, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 1, 1, 0, 0, 1],
-            [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-            [0, 1, 0, 1, 0, 0, 0, 0, 0, 0],
-            [0, 1, 0, 1, 0, 0, 1, 0, 0, 0],
-            [0, 1, 0, 1, 0, 0, 0, 0, 0, 1],
-            [0, 1, 0, 0, 0, 0, 1, 0, 0, 0]]
+test =  [[1, 0, 1, 0, 1, 1, 1, 1, 0, 1], [1, 0, 0, 0, 0, 0, 0, 0, 0, 0], [1, 0, 0, 0, 0, 0, 0, 0, 0, 0], [1, 0, 0, 0, 0, 0, 0, 0, 0, 0], [1, 0, 0, 0, 0, 0, 0, 0, 0, 0], [1, 0, 0, 0, 0, 0, 0, 0, 0, 0], [1, 0, 0, 0, 0, 0, 0, 0, 0, 0], [1, 0, 0, 0, 0, 0, 0, 0, 0, 0], [1, 0, 0, 0, 0, 0, 0, 0, 0, 0], [1, 0, 0, 0, 0, 0, 0, 0, 0, 0]]
 
 
 def check_1_s(field: list, count: int) -> bool:
@@ -77,27 +46,35 @@ def fill_zeros(field: list, start: tuple, ship: int, hor: bool) -> None:
     fill_v_end = min(start[0] + 1 + dir_v * (ship - 1), 9)
     fill_h_start = max(start[1] - 1, 0)
     fill_h_end = min(start[1] + 1 + dir_h * (ship - 1), 9)
-    fill_len = fill_h_end - fill_h_start
+    fill_len = fill_h_end - fill_h_start+1
     for row in range(fill_v_start, fill_v_end+1):
-        field[row][fill_h_start:fill_h_end] = [0 for _ in range(fill_len)]
+        field[row][fill_h_start:fill_h_end+1] = [0 for _ in range(fill_len)]
     return
 
 def identify_ship(field: list, start: tuple) -> (int, bool):
     if start[0] == start[1] == 9:
         return 1, True
-    ship_size = 1
+
     h_lim = min(start[1] + 4, 9)
     v_lim = min(start[0] + 4, 9)
-    v_dir = field[min(start[0] + 1, 9)][start[1]]
-    h_dir = field[start[0]][min(start[1] + 1, 9)]
+    v_dir = h_dir = 0
+    if start[0] != 9:
+        v_dir = field[min(start[0] + 1, 9)][start[1]]
+    if start[1] != 9:
+        h_dir = field[start[0]][min(start[1] + 1, 9)]
     if v_dir == h_dir == 0:
         return 1, True
+    if v_dir == h_dir == 1:
+        return 0, False
 
+    ship_size = 0
     row, col = start
-    it_start = v_dir*start[0] + h_dir * start[1]
-    it_end = v_dir*v_lim + h_dir*h_lim
+    it_start = v_dir * row + h_dir * col
+    it_end = v_dir * v_lim + h_dir * h_lim
     for i in range(it_start, it_end+1):
-        if field[row + v_dir * ship_size][col + h_dir * ship_size] == 0:
+        row = row * h_dir + i * v_dir
+        col = col * v_dir + i * h_dir
+        if field[row][col] == 0:
             return ship_size, bool(h_dir)
         ship_size += 1
 
@@ -112,7 +89,7 @@ def validate_battlefield(field: list) -> bool:
         for y in range(10):
             if field[x][y] == 1:
                 size, hor = identify_ship(field, (x, y))
-                if size == 0:
+                if size not in range(1, 5):
                     return False
                 if budget[size] == 0:
                     return False
@@ -123,10 +100,4 @@ def validate_battlefield(field: list) -> bool:
             return False
     return True
 
-assert validate_battlefield(random_1) == True
-print(random_1)
-assert validate_battlefield(random_2) == True
-print(random_2)
-assert validate_battlefield(random_3) == True
-print(random_3)
-
+print(validate_battlefield(test))
