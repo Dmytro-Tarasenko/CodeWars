@@ -25,28 +25,16 @@
 # [3, 3, 3] #-> X[1] = 6 - 3
 # https://www.codewars.com/kata/52f677797c461daaf7000740
 
-from collections import deque
-
-def is_good(deq: deque) -> True:
-
-    return True
-
-
 def solution(a: list) -> int:
     if len(a) == 1:
         return a[0]
-    deq_a = deque(a)
-    flag = modul = len(deq_a)
-    itr = 0
+    flag = 0
+    modul = len(a)
+    i = modul-1
+    j = i-1
     while True:
-        if deq_a[1] > deq_a[0]:
-            deq_a[1] = deq_a[1] - deq_a[0]
-            flag = flag + 1
-        deq_a.rotate(-1)
-        itr = (itr + 1) % modul
-        if flag == 0:
-            break
-    return sum(deq_a)
+        pass
+    return sum(a)
 
 
 test_0 = [6, 9, 21]  # 9
